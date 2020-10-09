@@ -1,11 +1,13 @@
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
 class Restaurant(models.Model):
     name = models.CharField('название', max_length=50)
     address = models.CharField('адрес', max_length=100, blank=True)
-    contact_phone = models.CharField('контактный телефон', max_length=50, blank=True)
+    contact_phone = models.CharField('контактный телефон', max_length=50,
+                                     blank=True)
 
     def __str__(self):
         return self.name
@@ -33,11 +35,14 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     name = models.CharField('название', max_length=50)
-    category = models.ForeignKey(ProductCategory, null=True, blank=True, on_delete=models.SET_NULL,
-                                 verbose_name='категория', related_name='products')
+    category = models.ForeignKey(ProductCategory, null=True, blank=True,
+                                 on_delete=models.SET_NULL,
+                                 verbose_name='категория',
+                                 related_name='products')
     price = models.DecimalField('цена', max_digits=8, decimal_places=2)
     image = models.ImageField('картинка')
-    special_status = models.BooleanField('спец.предложение', default=False, db_index=True)
+    special_status = models.BooleanField('спец.предложение', default=False,
+                                         db_index=True)
     description = models.TextField('описание', max_length=200, blank=True)
 
     objects = ProductQuerySet.as_manager()
@@ -51,9 +56,12 @@ class Product(models.Model):
 
 
 class RestaurantMenuItem(models.Model):
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='menu_items')
-    availability = models.BooleanField('в продаже', default=True, db_index=True)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE,
+                                   related_name='menu_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name='menu_items')
+    availability = models.BooleanField('в продаже', default=True,
+                                       db_index=True)
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
@@ -64,3 +72,32 @@ class RestaurantMenuItem(models.Model):
         unique_together = [
             ['restaurant', 'product']
         ]
+
+
+class Order(models.Model):
+    address = models.CharField('Адрес', max_length=100)
+    firstname = models.CharField('Имя', max_length=50)
+    lastname = models.CharField('Фамилия', max_length=50)
+    phonenumber = models.CharField('Мобильный номер', max_length=20)
+
+    def __str__(self):
+        return "{} {} {}".format(self.firstname, self.lastname, self.address)
+
+    class Meta:
+        verbose_name = 'заках'
+        verbose_name_plural = 'заказы'
+
+
+class OrderElements(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                verbose_name='товар')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='заказ')
+    count = models.IntegerField(validators=[MinValueValidator(1)],
+                                verbose_name='количество')
+
+    class Meta:
+        verbose_name = 'элемент заказа'
+        verbose_name_plural = 'элементы заказа'
+
+    def __str__(self):
+        return f"{self.product.name} {self.order}"

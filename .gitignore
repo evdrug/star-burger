@@ -3,3 +3,6 @@ db.sqlite3
 .cache
 node_modules/
 media/
+__pycache__/
+venv/
+.idea/

@@ -1,11 +1,12 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
+from rest_framework.fields import CharField
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
-from .models import Product, Order
+from .models import Product, Order, OrderElements
 
 
 def banners_list_api(request):
@@ -60,9 +61,32 @@ def product_list_api(request):
     })
 
 
+class OrderElementsSerializer(ModelSerializer):
+    quantity = CharField(source='count')
+
+    class Meta:
+        model = OrderElements
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderElementsSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['address', 'firstname', 'lastname', 'phonenumber',
+                  'products']
+
+
 @api_view(['POST'])
 def register_order(request):
-    order_from_site = json.loads(request.body.decode())
+    order_from_site = request.data
+    serializer = OrderSerializer(data=order_from_site)
+    print(serializer)
+    serializer.is_valid(raise_exception=True)
+    if not serializer.validated_data['products']:
+        raise ValidationError('Expects products field to not be empty')
+
     order = Order.objects.create(
         address=order_from_site['address'],
         firstname=order_from_site['firstname'],

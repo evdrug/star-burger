@@ -1,12 +1,13 @@
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.utils.html import format_html
 
+from .models import Order, OrderElements
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
-from .models import Order, OrderElements
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -90,14 +91,19 @@ class ProductAdmin(admin.ModelAdmin):
     def get_image_preview(self, obj):
         if not obj.image:
             return 'выберите картинку'
-        return format_html('<img src="{url}" height="200"/>', url=obj.image.url)
+        return format_html('<img src="{url}" height="200"/>',
+                           url=obj.image.url)
+
     get_image_preview.short_description = 'превью'
 
     def get_image_list_preview(self, obj):
         if not obj.image or not obj.id:
             return 'нет картинки'
         edit_url = reverse('admin:foodcartapp_product_change', args=(obj.id,))
-        return format_html('<a href="{edit_url}"><img src="{src}" height="50"/></a>', edit_url=edit_url, src=obj.image.url)
+        return format_html(
+            '<a href="{edit_url}"><img src="{src}" height="50"/></a>',
+            edit_url=edit_url, src=obj.image.url)
+
     get_image_list_preview.short_description = 'превью'
 
 
@@ -109,6 +115,9 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderElementsInline(admin.TabularInline):
     model = OrderElements
     extra = 0
+    readonly_fields = [
+        'price',
+    ]
 
 
 @admin.register(Order)
@@ -116,5 +125,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderElementsInline
     ]
+    fields = ['status', 'payment_method', 'address', 'firstname', 'lastname',
+              'phonenumber', 'comment', 'created_at', 'called_at',
+              'delivered_at']
 
-
+    def response_post_save_change(self, request, obj):
+        res = super().response_post_save_change(request, obj)
+        if "next" in request.GET:
+            return HttpResponseRedirect(request.GET['next'])
+        else:
+            return res

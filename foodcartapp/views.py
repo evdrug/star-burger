@@ -1,12 +1,12 @@
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
-from rest_framework.fields import CharField
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
-from .models import Product, Order, OrderElements
+from .models import Product
+from .serializer import OrderSerializer
 
 
 def banners_list_api(request):
@@ -61,42 +61,12 @@ def product_list_api(request):
     })
 
 
-class OrderElementsSerializer(ModelSerializer):
-    quantity = CharField(source='count')
-
-    class Meta:
-        model = OrderElements
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True)
-
-    class Meta:
-        model = Order
-        fields = ['address', 'firstname', 'lastname', 'phonenumber',
-                  'products']
-
-
 @api_view(['POST'])
+@transaction.atomic
 def register_order(request):
-    order_from_site = request.data
-    serializer = OrderSerializer(data=order_from_site)
-    print(serializer)
+    serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    if not serializer.validated_data['products']:
-        raise ValidationError('Expects products field to not be empty')
-
-    order = Order.objects.create(
-        address=order_from_site['address'],
-        firstname=order_from_site['firstname'],
-        lastname=order_from_site['lastname'],
-        phonenumber=order_from_site['phonenumber']
-    )
-    for product_from_site in order_from_site['products']:
-        product = Product.objects.get(pk=product_from_site['product'])
-        order.orderelements_set.create(
-            product=product,
-            count=product_from_site['quantity']
-        )
-    return Response({})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=HTTP_201_CREATED)
+    return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

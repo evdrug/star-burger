@@ -1,14 +1,14 @@
 from django import forms
-from django.shortcuts import redirect, render
-from django.views import View
-from django.urls import reverse_lazy
-from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Sum
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views import View
 
-
-from foodcartapp.models import Product, Restaurant
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from restaurateur.utils import distance_points
 
 
 class Login(forms.Form):
@@ -71,12 +71,13 @@ def view_products(request):
     default_availability = {restaurant.id: False for restaurant in restaurants}
     products_with_restaurants = []
     for product in products:
-
         availability = {
             **default_availability,
-            **{item.restaurant_id: item.availability for item in product.menu_items.all()},
+            **{item.restaurant_id: item.availability for item in
+               product.menu_items.all()},
         }
-        orderer_availability = [availability[restaurant.id] for restaurant in restaurants]
+        orderer_availability = [availability[restaurant.id] for restaurant in
+                                restaurants]
 
         products_with_restaurants.append(
             (product, orderer_availability)
@@ -97,6 +98,35 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    orders = Order.objects.prefetch_related('products').annotate(
+        price_order=Sum('products__price'))
+    menu = RestaurantMenuItem.objects.prefetch_related('restaurant')
+
+    products_in_restaurant = {}
+    for position in menu:
+        if position.restaurant not in products_in_restaurant:
+            products_in_restaurant[position.restaurant] = []
+        if position.availability:
+            products_in_restaurant[position.restaurant].append(
+                position.product_id)
+
+    orders_filter_restaurant = []
+    for order in orders:
+        restaurants = []
+        for restaurant, products in products_in_restaurant.items():
+            is_products = []
+            for x in order.products.all():
+                is_products.append(x.product_id in products)
+            if all(is_products):
+                restaurants.append(
+                    {'name': restaurant.name,
+                     'distance_to_client': distance_points(restaurant.address,
+                                                           order.address)})
+        restaurants.sort(
+            key=lambda restaurant: restaurant['distance_to_client'])
+        order.restaurants = restaurants
+        orders_filter_restaurant.append(order)
+
     return render(request, template_name='order_items.html', context={
-        # TODO заглушка для нереализованного функционала
+        'order_items': orders_filter_restaurant
     })

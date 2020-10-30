@@ -113,11 +113,14 @@ def view_orders(request):
     orders_filter_restaurant = []
     for order in orders:
         restaurants = []
-        for restaurant, products in products_in_restaurant.items():
-            is_products = []
-            for x in order.products.all():
-                is_products.append(x.product_id in products)
-            if all(is_products):
+        for restaurant, products_restaurant in products_in_restaurant.items():
+            products_available = []
+            for product_order in order.products.all():
+                products_available.append(
+                    product_order.product_id in products_restaurant
+                )
+
+            if all(products_available):
                 restaurants.append(
                     {'name': restaurant.name,
                      'distance_to_client': distance_points(restaurant.address,

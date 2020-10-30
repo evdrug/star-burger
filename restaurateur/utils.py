@@ -26,7 +26,10 @@ def distance_points(point_1, point_2):
                                            100)
     coordinates = f"{coordinates_point_1[0]}/{coordinates_point_1[1]}_" \
                   f"{coordinates_point_2[0]}/{coordinates_point_2[1]}"
-    distance_cache = cache.get_or_set(coordinates,
-                                      distance(coordinates_point_1,
-                                               coordinates_point_2).km, 100)
+    distance_points = 0
+    try:
+        distance_points = distance(coordinates_point_1, coordinates_point_2).km
+    except ValueError as e:
+        print(f"Error distance {e}")
+    distance_cache = cache.get_or_set(coordinates, distance_points, 100)
     return distance_cache

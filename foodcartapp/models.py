@@ -111,7 +111,7 @@ class Order(models.Model):
         return "{} {} {}".format(self.firstname, self.lastname, self.address)
 
     class Meta:
-        verbose_name = 'заках'
+        verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
 
 
@@ -122,7 +122,7 @@ class OrderElements(models.Model):
                               verbose_name='заказ', related_name='products')
     count = models.IntegerField(validators=[MinValueValidator(1)],
                                 verbose_name='количество')
-    price = models.DecimalField('цена за еденицу товара', max_digits=8,
+    price = models.DecimalField('цена за единицу товара', max_digits=8,
                                 decimal_places=2)
 
     def save(self, *args, **kwargs):

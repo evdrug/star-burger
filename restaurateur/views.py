@@ -110,7 +110,7 @@ def view_orders(request):
             products_in_restaurant[position.restaurant].append(
                 position.product_id)
 
-    orders_filter_restaurant = []
+    orders_for_restaurant = []
     for order in orders:
         restaurants = []
         for restaurant, products_restaurant in products_in_restaurant.items():
@@ -128,8 +128,8 @@ def view_orders(request):
         restaurants.sort(
             key=lambda restaurant: restaurant['distance_to_client'])
         order.restaurants = restaurants
-        orders_filter_restaurant.append(order)
+        orders_for_restaurant.append(order)
 
     return render(request, template_name='order_items.html', context={
-        'order_items': orders_filter_restaurant
+        'order_items': orders_for_restaurant
     })

@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Sum
 from django.utils import timezone
 
 
@@ -36,11 +35,13 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     name = models.CharField('название', max_length=50)
+
     category = models.ForeignKey(ProductCategory, null=True, blank=True,
                                  on_delete=models.SET_NULL,
                                  verbose_name='категория',
-                                 related_name='product_category')
-    price = models.DecimalField('цена', max_digits=8, decimal_places=2)
+                                 related_name='products')
+    price = models.DecimalField('цена', max_digits=8, decimal_places=2,
+                                validators=[MinValueValidator(0)])
     image = models.ImageField('картинка')
     special_status = models.BooleanField('спец.предложение', default=False,
                                          db_index=True)
@@ -58,9 +59,11 @@ class Product(models.Model):
 
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE,
-                                   related_name='menu_items')
+                                   related_name='menu_items',
+                                   verbose_name="ресторан")
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                related_name='menu_items')
+                                related_name='menu_items',
+                                verbose_name='продукт')
     availability = models.BooleanField('в продаже', default=True,
                                        db_index=True)
 
@@ -91,12 +94,16 @@ class Order(models.Model):
     phonenumber = models.CharField('Мобильный номер', max_length=20)
     status = models.IntegerField('Статус заказа', choices=STATUS_ORDER,
                                  default=1)
-    payment_method = models.IntegerField('Способ оплаты', choices=PAYMENT_ORDER,
-                                 default=1)
+    payment_method = models.IntegerField('Способ оплаты',
+                                         choices=PAYMENT_ORDER,
+                                         default=1)
     comment = models.TextField('Комментарий', blank=True)
-    created_at = models.DateTimeField('Время поступления заказа', default=timezone.now)
-    called_at = models.DateTimeField('Время подтверждения заказа', blank=True, null=True)
-    delivered_at = models.DateTimeField('Время доставки заказа', blank=True, null=True)
+    created_at = models.DateTimeField('Время поступления заказа',
+                                      default=timezone.now)
+    called_at = models.DateTimeField('Время подтверждения заказа', blank=True,
+                                     null=True)
+    delivered_at = models.DateTimeField('Время доставки заказа', blank=True,
+                                        null=True)
 
     def __str__(self):
         return "{} {} {}".format(self.firstname, self.lastname, self.address)

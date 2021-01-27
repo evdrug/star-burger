@@ -124,7 +124,8 @@ class OrderElements(models.Model):
     count = models.IntegerField(validators=[MinValueValidator(1)],
                                 verbose_name='количество')
     price = models.DecimalField('цена за единицу товара', max_digits=8,
-                                decimal_places=2)
+                                decimal_places=2,
+                                validators=[MinValueValidator(0)])
 
     def save(self, *args, **kwargs):
         self.price = float(self.product.price) * int(self.count)

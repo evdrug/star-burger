@@ -1,13 +1,14 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
     name = models.CharField('название', max_length=50)
     address = models.CharField('адрес', max_length=100, blank=True)
-    contact_phone = models.CharField('контактный телефон', max_length=50,
-                                     blank=True)
+    contact_phone = PhoneNumberField('контактный телефон', max_length=50,
+                                     blank=True, region='RU')
 
     def __str__(self):
         return self.name
@@ -91,7 +92,8 @@ class Order(models.Model):
     address = models.CharField('Адрес', max_length=100)
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
-    phonenumber = models.CharField('Мобильный номер', max_length=20)
+    phonenumber = PhoneNumberField('Мобильный номер', max_length=20,
+                                   region='RU')
     status = models.IntegerField('Статус заказа', choices=STATUS_ORDER,
                                  default=1)
     payment_method = models.IntegerField('Способ оплаты',

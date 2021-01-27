@@ -33,13 +33,6 @@ class OrderSerializer(ModelSerializer):
                 order=order,
                 price=serialize_product.get('product').price
             )
-            # element_in_order = OrderElements(
-            #     product=serialize_product.get('product'),
-            #     count=serialize_product.get('count'),
-            #     order=order,
-            #     price=serialize_product.get('product').price
-            # )
-            # element_in_order.save()
         return order
 
     class Meta:

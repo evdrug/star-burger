@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer
 
-from foodcartapp.models import Order, OrderElements
+from foodcartapp.models import Order, OrderElements, Product
 
 
 class OrderElementsSerializer(ModelSerializer):
@@ -30,7 +30,16 @@ class OrderSerializer(ModelSerializer):
             order.products.create(
                 product=serialize_product.get('product'),
                 count=serialize_product.get('count'),
+                order=order,
+                price=serialize_product.get('product').price
             )
+            # element_in_order = OrderElements(
+            #     product=serialize_product.get('product'),
+            #     count=serialize_product.get('count'),
+            #     order=order,
+            #     price=serialize_product.get('product').price
+            # )
+            # element_in_order.save()
         return order
 
     class Meta:

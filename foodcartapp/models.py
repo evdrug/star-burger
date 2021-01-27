@@ -1,12 +1,14 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Sum, F, FloatField
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
     name = models.CharField('название', max_length=50, db_index=True)
-    address = models.CharField('адрес', max_length=100, blank=True, db_index=True)
+    address = models.CharField('адрес', max_length=100, blank=True,
+                               db_index=True)
     contact_phone = PhoneNumberField('контактный телефон', max_length=50,
                                      blank=True, region='RU', db_index=True)
 
@@ -79,6 +81,13 @@ class RestaurantMenuItem(models.Model):
         ]
 
 
+class OrderQuerySet(models.QuerySet):
+    def order_price(self):
+        return self.prefetch_related('products').annotate(
+            price_order=Sum(F('products__price') * F('products__count'),
+                            output_field=FloatField()))
+
+
 class Order(models.Model):
     STATUS_ORDER = (
         (1, 'Необработанный'),
@@ -107,6 +116,7 @@ class Order(models.Model):
     delivered_at = models.DateTimeField('Время доставки заказа', blank=True,
                                         null=True)
 
+    object = OrderQuerySet.as_manager()
     def __str__(self):
         return "{} {} {}".format(self.firstname, self.lastname, self.address)
 
@@ -127,13 +137,12 @@ class OrderElements(models.Model):
                                 decimal_places=2,
                                 validators=[MinValueValidator(0)])
 
-    def save(self, *args, **kwargs):
-        self.price = float(self.product.price) * int(self.count)
-        super().save(*args, **kwargs)
-
     class Meta:
-        verbose_name = 'элемент заказа'
-        verbose_name_plural = 'элементы заказа'
+        verbose_name = 'продукт в заказе'
+        verbose_name_plural = 'продукты в заказе'
 
     def __str__(self):
         return f"{self.product.name} {self.order}"
+
+    def get_total_price(self):
+        return self.count * self.price

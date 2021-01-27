@@ -5,10 +5,10 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
-    name = models.CharField('название', max_length=50)
-    address = models.CharField('адрес', max_length=100, blank=True)
+    name = models.CharField('название', max_length=50, db_index=True)
+    address = models.CharField('адрес', max_length=100, blank=True, db_index=True)
     contact_phone = PhoneNumberField('контактный телефон', max_length=50,
-                                     blank=True, region='RU')
+                                     blank=True, region='RU', db_index=True)
 
     def __str__(self):
         return self.name
@@ -24,7 +24,7 @@ class ProductQuerySet(models.QuerySet):
 
 
 class ProductCategory(models.Model):
-    name = models.CharField('название', max_length=50)
+    name = models.CharField('название', max_length=50, db_index=True)
 
     class Meta:
         verbose_name = 'категория'
@@ -35,7 +35,7 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField('название', max_length=50)
+    name = models.CharField('название', max_length=50, db_index=True)
 
     category = models.ForeignKey(ProductCategory, null=True, blank=True,
                                  on_delete=models.SET_NULL,

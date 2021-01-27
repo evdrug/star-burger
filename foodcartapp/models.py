@@ -117,7 +117,8 @@ class Order(models.Model):
 
 class OrderElements(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                verbose_name='товар')
+                                verbose_name='товар',
+                                related_name='product_in_orders')
     order = models.ForeignKey(Order, on_delete=models.CASCADE,
                               verbose_name='заказ', related_name='products')
     count = models.IntegerField(validators=[MinValueValidator(1)],

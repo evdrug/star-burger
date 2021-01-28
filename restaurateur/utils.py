@@ -2,6 +2,7 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from geopy.distance import distance
+from functools import partial
 
 
 def fetch_coordinates(place):
@@ -17,19 +18,17 @@ def fetch_coordinates(place):
     return lon, lat
 
 
-def distance_points(point_1, point_2):
+def get_distance_points(point_1, point_2):
     coordinates_point_1 = cache.get_or_set(point_1.replace(' ', '_'),
-                                           fetch_coordinates(point_1),
+                                           partial(fetch_coordinates, point_1),
                                            100)
     coordinates_point_2 = cache.get_or_set(point_2.replace(' ', '_'),
-                                           fetch_coordinates(point_2),
+                                           partial(fetch_coordinates, point_2),
                                            100)
-    coordinates = f"{coordinates_point_1[0]}/{coordinates_point_1[1]}_" \
-                  f"{coordinates_point_2[0]}/{coordinates_point_2[1]}"
-    distance_points = 0
+    distance_points = 'NaN'
+
     try:
         distance_points = distance(coordinates_point_1, coordinates_point_2).km
     except ValueError as e:
         print(f"Error distance {e}")
-    distance_cache = cache.get_or_set(coordinates, distance_points, 100)
-    return distance_cache
+    return distance_points

@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from restaurateur.utils import distance_points
+from restaurateur.utils import get_distance_points
 
 
 class Login(forms.Form):
@@ -119,8 +119,8 @@ def view_orders(request):
             if products_available == products_in_order:
                 restaurants.append(
                     {'name': restaurant.name,
-                     'distance_to_client': distance_points(restaurant.address,
-                                                           order.address)})
+                     'distance_to_client': get_distance_points(
+                         restaurant.address, order.address)})
         restaurants.sort(
             key=lambda restaurant: restaurant['distance_to_client'])
         order.restaurants = restaurants

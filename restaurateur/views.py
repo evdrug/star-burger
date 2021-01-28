@@ -98,7 +98,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.object.order_price()
+    orders = Order.objects.order_price()
     menu = RestaurantMenuItem.objects.prefetch_related('restaurant')
 
     products_in_restaurant = {}

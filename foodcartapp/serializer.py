@@ -1,9 +1,8 @@
-from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer
 
-from foodcartapp.models import Order, OrderElements, Product
+from foodcartapp.models import Order, OrderElements
 
 
 class OrderElementsSerializer(ModelSerializer):
@@ -17,16 +16,20 @@ class OrderElementsSerializer(ModelSerializer):
 class OrderSerializer(ModelSerializer):
     products = OrderElementsSerializer(many=True)
 
-    def create(self, validated_data):
-        if not validated_data.get('products'):
+    def validate_products(self, value):
+        if not value:
             raise ValidationError('Expects products field to not be empty')
+        return value
+
+    def create(self, validated_data):
         order = Order.objects.create(
             address=validated_data.get('address'),
             firstname=validated_data.get('firstname'),
             lastname=validated_data.get('lastname'),
             phonenumber=validated_data.get('phonenumber')
         )
-        for serialize_product in validated_data.get('products', []):
+
+        for serialize_product in validated_data.get('products'):
             order.products.create(
                 product=serialize_product.get('product'),
                 count=serialize_product.get('count'),

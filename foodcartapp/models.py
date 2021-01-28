@@ -116,7 +116,7 @@ class Order(models.Model):
     delivered_at = models.DateTimeField('Время доставки заказа', blank=True,
                                         null=True)
 
-    object = OrderQuerySet.as_manager()
+    objects = OrderQuerySet.as_manager()
     def __str__(self):
         return "{} {} {}".format(self.firstname, self.lastname, self.address)
 

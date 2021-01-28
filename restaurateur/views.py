@@ -112,7 +112,7 @@ def view_orders(request):
         restaurants = []
         for restaurant, products_restaurant in products_in_restaurant.items():
             products_in_order = {product.product_id for product in
-                                 order.products.all()}
+                                 order.order_product.all()}
             products_available = products_restaurant.intersection(
                 products_in_order)
 

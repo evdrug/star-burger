@@ -14,7 +14,7 @@ class OrderElementsSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True)
+    products = OrderElementsSerializer(many=True, source='order_product')
 
     def validate_products(self, value):
         if not value:
@@ -29,8 +29,8 @@ class OrderSerializer(ModelSerializer):
             phonenumber=validated_data.get('phonenumber')
         )
 
-        for serialize_product in validated_data.get('products'):
-            order.products.create(
+        for serialize_product in validated_data.get('order_product'):
+            order.order_product.create(
                 product=serialize_product.get('product'),
                 count=serialize_product.get('count'),
                 order=order,

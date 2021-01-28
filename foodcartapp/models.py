@@ -83,8 +83,8 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def order_price(self):
-        return self.prefetch_related('products').annotate(
-            price_order=Sum(F('products__price') * F('products__count'),
+        return self.prefetch_related('order_product').annotate(
+            price_order=Sum(F('order_product__price') * F('order_product__count'),
                             output_field=FloatField()))
 
 
@@ -117,6 +117,7 @@ class Order(models.Model):
                                         null=True)
 
     objects = OrderQuerySet.as_manager()
+
     def __str__(self):
         return "{} {} {}".format(self.firstname, self.lastname, self.address)
 
@@ -128,9 +129,10 @@ class Order(models.Model):
 class OrderElements(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 verbose_name='товар',
-                                related_name='product_in_orders')
+                                related_name='order_product')
     order = models.ForeignKey(Order, on_delete=models.CASCADE,
-                              verbose_name='заказ', related_name='products')
+                              verbose_name='заказ',
+                              related_name='order_product')
     count = models.IntegerField(validators=[MinValueValidator(1)],
                                 verbose_name='количество')
     price = models.DecimalField('цена за единицу товара', max_digits=8,

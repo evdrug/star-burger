@@ -1,8 +1,9 @@
+from collections import defaultdict
+
 from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Sum, F, FloatField
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -99,27 +100,23 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.order_price()
-    menu = RestaurantMenuItem.objects.prefetch_related('restaurant')
+    menu = RestaurantMenuItem.objects.prefetch_related('restaurant').filter(
+        availability=True)
 
-    products_in_restaurant = {}
+    products_in_restaurant = defaultdict(set)
     for position in menu:
-        if position.restaurant not in products_in_restaurant:
-            products_in_restaurant[position.restaurant] = []
-        if position.availability:
-            products_in_restaurant[position.restaurant].append(
-                position.product_id)
+        products_in_restaurant[position.restaurant].add(position.product_id)
 
     orders_for_restaurant = []
     for order in orders:
         restaurants = []
         for restaurant, products_restaurant in products_in_restaurant.items():
-            products_available = []
-            for product_order in order.products.all():
-                products_available.append(
-                    product_order.product_id in products_restaurant
-                )
+            products_in_order = {product.product_id for product in
+                                 order.products.all()}
+            products_available = products_restaurant.intersection(
+                products_in_order)
 
-            if all(products_available):
+            if products_available == products_in_order:
                 restaurants.append(
                     {'name': restaurant.name,
                      'distance_to_client': distance_points(restaurant.address,

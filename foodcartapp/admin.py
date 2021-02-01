@@ -134,7 +134,17 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
-        if url_has_allowed_host_and_scheme(request.GET['next'], ALLOWED_HOSTS):
+        if request.GET.get('next') and url_has_allowed_host_and_scheme(request.GET['next'], ALLOWED_HOSTS):
             return HttpResponseRedirect(request.GET['next'])
         else:
             return res
+
+    def save_related(self, request, form, formsets, change):
+        for formset in formsets:
+            if formset.model == OrderElements:
+                order_items = formset.save(commit=False)
+                for order_item in order_items:
+                    order_item.price = order_item.product.price
+                    order_item.save()
+        super(OrderAdmin, self).save_related(request, form, formsets, change)
+

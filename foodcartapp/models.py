@@ -110,11 +110,11 @@ class Order(models.Model):
                                          default=1)
     comment = models.TextField('Комментарий', blank=True)
     created_at = models.DateTimeField('Время поступления заказа',
-                                      default=timezone.now)
+                                      default=timezone.now, db_index=True)
     called_at = models.DateTimeField('Время подтверждения заказа', blank=True,
-                                     null=True)
+                                     null=True, db_index=True)
     delivered_at = models.DateTimeField('Время доставки заказа', blank=True,
-                                        null=True)
+                                        null=True, db_index=True)
 
     objects = OrderQuerySet.as_manager()
 

@@ -107,12 +107,12 @@ def view_orders(request):
     for position in menu:
         products_in_restaurant[position.restaurant].add(position.product_id)
 
-    orders_for_restaurant = []
     for order in orders:
         restaurants = []
+        products_in_order = {product.product_id for product in
+                             order.order_product.all()}
+
         for restaurant, products_restaurant in products_in_restaurant.items():
-            products_in_order = {product.product_id for product in
-                                 order.order_product.all()}
             products_available = products_restaurant.intersection(
                 products_in_order)
 
@@ -124,8 +124,7 @@ def view_orders(request):
         restaurants.sort(
             key=lambda restaurant: restaurant['distance_to_client'])
         order.restaurants = restaurants
-        orders_for_restaurant.append(order)
 
     return render(request, template_name='order_items.html', context={
-        'order_items': orders_for_restaurant
+        'order_items': orders
     })

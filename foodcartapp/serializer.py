@@ -12,7 +12,6 @@ class OrderElementsSerializer(ModelSerializer):
         model = OrderElement
         fields = ['product', 'quantity']
 
-
 class OrderSerializer(ModelSerializer):
     products = OrderElementsSerializer(many=True, source='order_products')
 
@@ -23,18 +22,18 @@ class OrderSerializer(ModelSerializer):
 
     def create(self, validated_data):
         order = Order.objects.create(
-            address=validated_data.get('address'),
-            firstname=validated_data.get('firstname'),
-            lastname=validated_data.get('lastname'),
-            phonenumber=validated_data.get('phonenumber')
+            address=validated_data['address'],
+            firstname=validated_data['firstname'],
+            lastname=validated_data['lastname'],
+            phonenumber=validated_data['phonenumber']
         )
 
-        for serialize_product in validated_data.get('order_products'):
-            order.order_product.create(
-                product=serialize_product.get('product'),
-                count=serialize_product.get('count'),
+        for serialize_product in validated_data['order_products']:
+            order.order_products.create(
+                product=serialize_product['product'],
+                count=serialize_product['count'],
                 order=order,
-                price=serialize_product.get('product').price
+                price=serialize_product['product'].price
             )
         return order
 

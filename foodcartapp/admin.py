@@ -146,5 +146,3 @@ class OrderAdmin(admin.ModelAdmin):
                 for order_item in order_items:
                     order_item.price = order_item.product.price
                     order_item.save()
-        super(OrderAdmin, self).save_related(request, form, formsets, change)
-

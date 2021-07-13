@@ -107,7 +107,7 @@ class Order(models.Model):
                                  default=1, db_index=True)
     payment_method = models.IntegerField('Способ оплаты',
                                          choices=PAYMENT_ORDER,
-                                         default=1, db_index=True)
+                                         null=True, db_index=True)
     comment = models.TextField('Комментарий', blank=True)
     created_at = models.DateTimeField('Время поступления заказа',
                                       default=timezone.now, db_index=True)

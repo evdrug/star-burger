@@ -12,13 +12,9 @@ class OrderElementsSerializer(ModelSerializer):
         model = OrderElement
         fields = ['product', 'quantity']
 
-class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True, source='order_products')
 
-    def validate_products(self, value):
-        if not value:
-            raise ValidationError('Expects products field to not be empty')
-        return value
+class OrderSerializer(ModelSerializer):
+    products = OrderElementsSerializer(many=True, allow_empty=False, source='order_products')
 
     def create(self, validated_data):
         order = Order.objects.create(

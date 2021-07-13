@@ -83,7 +83,7 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def order_price(self):
-        return self.prefetch_related('order_products').annotate(
+        return self.annotate(
             total_price=Sum(F('order_products__price') * F('order_products__count'),
                             output_field=FloatField()))
 

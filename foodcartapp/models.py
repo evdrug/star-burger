@@ -12,12 +12,12 @@ class Restaurant(models.Model):
     contact_phone = PhoneNumberField('контактный телефон', max_length=50,
                                      blank=True, region='RU', db_index=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'ресторан'
         verbose_name_plural = 'рестораны'
+
+    def __str__(self):
+        return self.name
 
 
 class ProductQuerySet(models.QuerySet):
@@ -52,12 +52,12 @@ class Product(models.Model):
 
     objects = ProductQuerySet.as_manager()
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'товар'
         verbose_name_plural = 'товары'
+
+    def __str__(self):
+        return self.name
 
 
 class RestaurantMenuItem(models.Model):
@@ -70,15 +70,15 @@ class RestaurantMenuItem(models.Model):
     availability = models.BooleanField('в продаже', default=True,
                                        db_index=True)
 
-    def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
-
     class Meta:
         verbose_name = 'пункт меню ресторана'
         verbose_name_plural = 'пункты меню ресторана'
         unique_together = [
             ['restaurant', 'product']
         ]
+
+    def __str__(self):
+        return f"{self.restaurant.name} - {self.product.name}"
 
 
 class OrderQuerySet(models.QuerySet):
@@ -118,12 +118,12 @@ class Order(models.Model):
 
     objects = OrderQuerySet.as_manager()
 
-    def __str__(self):
-        return "{} {} {}".format(self.firstname, self.lastname, self.address)
-
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
+
+    def __str__(self):
+        return "Order {} {} {}".format(self.firstname, self.lastname, self.address)
 
 
 class OrderElements(models.Model):

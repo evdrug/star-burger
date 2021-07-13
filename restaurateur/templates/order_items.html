@@ -40,7 +40,14 @@
               <summary>Details</summary>
               {% for restaurant in item.restaurants %}
                 <li>{{ restaurant.name }}
-                  - {{ restaurant.distance_to_client|floatformat:2 }}км.</li>
+                  -
+                  {% if restaurant.distance_to_client %}
+                    {{ restaurant.distance_to_client|floatformat:2 }}км.
+                  {% else %}
+                    ___км.
+                  {% endif %}
+
+                </li>
               {% endfor %}
             </details>
           {% endif %}

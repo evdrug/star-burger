@@ -77,6 +77,34 @@ TEMPLATES = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING'
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': env.str('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
+
 WSGI_APPLICATION = 'star_burger.wsgi.application'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

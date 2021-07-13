@@ -3,6 +3,9 @@ from django.conf import settings
 from django.core.cache import cache
 from geopy.distance import distance
 from functools import partial
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PointError(Exception):
@@ -18,7 +21,7 @@ def fetch_coordinates(place):
     places_found = response.json()['response']['GeoObjectCollection'][
         'featureMember']
     if not places_found:
-        raise PointError
+        raise PointError(f"Error getting coordinates for a place '{place}'")
     most_relevant = places_found[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
     return lon, lat
@@ -34,11 +37,12 @@ def get_distance_points(point_1, point_2):
         coordinates_point_2 = cache.get_or_set(point_2.replace(' ', '_'),
                                                partial(fetch_coordinates, point_2),
                                                100)
-    except PointError:
+    except PointError as e:
+        logger.error(e)
         return distance_points
 
     try:
         distance_points = distance(coordinates_point_1, coordinates_point_2).km
     except ValueError as e:
-        print(f"Error distance {e}")
+        logger.error(f"Error distance {e}")
     return distance_points

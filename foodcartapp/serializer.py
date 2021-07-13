@@ -2,19 +2,19 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer
 
-from foodcartapp.models import Order, OrderElements
+from foodcartapp.models import Order, OrderElement
 
 
 class OrderElementsSerializer(ModelSerializer):
     quantity = CharField(source='count')
 
     class Meta:
-        model = OrderElements
+        model = OrderElement
         fields = ['product', 'quantity']
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True, source='order_product')
+    products = OrderElementsSerializer(many=True, source='order_products')
 
     def validate_products(self, value):
         if not value:
@@ -29,7 +29,7 @@ class OrderSerializer(ModelSerializer):
             phonenumber=validated_data.get('phonenumber')
         )
 
-        for serialize_product in validated_data.get('order_product'):
+        for serialize_product in validated_data.get('order_products'):
             order.order_product.create(
                 product=serialize_product.get('product'),
                 count=serialize_product.get('count'),

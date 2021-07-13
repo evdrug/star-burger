@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from star_burger.settings import ALLOWED_HOSTS
-from .models import Order, OrderElements
+from .models import Order, OrderElement
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
@@ -116,7 +116,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class OrderElementsInline(admin.TabularInline):
-    model = OrderElements
+    model = OrderElement
     extra = 0
     readonly_fields = [
         'price',
@@ -141,7 +141,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def save_related(self, request, form, formsets, change):
         for formset in formsets:
-            if formset.model == OrderElements:
+            if formset.model == OrderElement:
                 order_items = formset.save(commit=False)
                 for order_item in order_items:
                     order_item.price = order_item.product.price

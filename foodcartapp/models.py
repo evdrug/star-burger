@@ -102,12 +102,12 @@ class Order(models.Model):
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
     phonenumber = PhoneNumberField('Мобильный номер', max_length=20,
-                                   region='RU')
+                                   region='RU', db_index=True)
     status = models.IntegerField('Статус заказа', choices=STATUS_ORDER,
-                                 default=1)
+                                 default=1, db_index=True)
     payment_method = models.IntegerField('Способ оплаты',
                                          choices=PAYMENT_ORDER,
-                                         default=1)
+                                         default=1, db_index=True)
     comment = models.TextField('Комментарий', blank=True)
     created_at = models.DateTimeField('Время поступления заказа',
                                       default=timezone.now, db_index=True)

@@ -126,7 +126,7 @@ class Order(models.Model):
         return "Order {} {} {}".format(self.firstname, self.lastname, self.address)
 
 
-class OrderElements(models.Model):
+class OrderElement(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
                                 verbose_name='товар',
                                 related_name='order_product')

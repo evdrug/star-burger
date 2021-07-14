@@ -113,7 +113,7 @@ def view_orders(request):
                              order.order_products.all()}
 
         for restaurant, restaurant_products in products_in_restaurant.items():
-            if not bool(products_in_order - restaurant_products):
+            if not (products_in_order - restaurant_products):
                 restaurants.append(
                     {'name': restaurant.name,
                      'distance_to_client': get_distance_points(

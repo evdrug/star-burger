@@ -118,9 +118,6 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderElementsInline(admin.TabularInline):
     model = OrderElement
     extra = 0
-    readonly_fields = [
-        'price',
-    ]
 
 
 @admin.register(Order)
@@ -144,5 +141,6 @@ class OrderAdmin(admin.ModelAdmin):
             if formset.model == OrderElement:
                 order_items = formset.save(commit=False)
                 for order_item in order_items:
-                    order_item.price = order_item.product.price
+                    if order_item.price is None:
+                        order_item.price = order_item.product.price
                     order_item.save()

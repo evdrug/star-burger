@@ -14,7 +14,7 @@ class OrderElementsSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True, allow_empty=False, source='order_products')
+    products = OrderElementsSerializer(many=True, allow_empty=False, source='elements')
 
     def create(self, validated_data):
         order = Order.objects.create(
@@ -24,8 +24,8 @@ class OrderSerializer(ModelSerializer):
             phonenumber=validated_data['phonenumber']
         )
 
-        for serialize_product in validated_data['order_products']:
-            order.order_products.create(
+        for serialize_product in validated_data['elements']:
+            order.elements.create(
                 product=serialize_product['product'],
                 count=serialize_product['count'],
                 order=order,

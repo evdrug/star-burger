@@ -99,7 +99,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.order_price().prefetch_related('order_products')
+    orders = Order.objects.order_price().prefetch_related('elements')
     menu = RestaurantMenuItem.objects.prefetch_related('restaurant').filter(
         availability=True)
 
@@ -110,7 +110,7 @@ def view_orders(request):
     for order in orders:
         restaurants = []
         products_in_order = {product.product_id for product in
-                             order.order_products.all()}
+                             order.elements.all()}
 
         for restaurant, restaurant_products in products_in_restaurant.items():
             if not (products_in_order - restaurant_products):

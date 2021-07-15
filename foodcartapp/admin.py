@@ -34,7 +34,6 @@ class RestaurantAdmin(admin.ModelAdmin):
         RestaurantMenuItemInline
     ]
 
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
@@ -141,6 +140,7 @@ class OrderAdmin(admin.ModelAdmin):
             if formset.model == OrderElement:
                 order_items = formset.save(commit=False)
                 for order_item in order_items:
+                    print(order_item)
                     if order_item.price is None:
                         order_item.price = order_item.product.price
-                    order_item.save()
+                formset.save()

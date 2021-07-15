@@ -66,6 +66,7 @@ python manage.py migrate
 - `DEBUG=` - режим отладки
 - `SECRET_KEY=` - ключ для подписанных данных
 - `ALLOWED_HOSTS=` - список разрешенных хостов и доменов(указать через запятую)
+- `ROLLBAR_TOKEN=` - токен системы логирования [Rollbar](https://rollbar.com/)
 
 Запустите сервер:
 

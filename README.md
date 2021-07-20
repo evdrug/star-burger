@@ -52,13 +52,6 @@ cd star-burger
 ```sh
 pip install -r requirements.txt
 ```
-
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
-
-```sh
-python manage.py migrate
-```
-
 Создайте файл `.env`
 
 Укажите в `.env` настройки окружения:
@@ -67,6 +60,23 @@ python manage.py migrate
 - `SECRET_KEY=` - ключ для подписанных данных
 - `ALLOWED_HOSTS=` - список разрешенных хостов и доменов(указать через запятую)
 - `ROLLBAR_TOKEN=` - токен системы логирования [Rollbar](https://rollbar.com/)
+
+    настройка БД PostgreSQL:
+- `PG_DB_NAME=` - имя БД
+- `PG_DB_USER=` - пользователь БД
+- `PG_DB_PASSWORD=` - пароль БД
+- `PG_DB_HOST=` - адрес БД
+- `PG_DB_PORT=` - порт БД
+
+
+[Установим PostgreSQL](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
+ и выполним миграцию, для создания необходимых таблиц:
+
+
+```sh
+python manage.py migrate
+```
+
 
 Запустите сервер:
 

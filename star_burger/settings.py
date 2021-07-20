@@ -112,9 +112,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env.str('PG_DB_NAME'),
+        'USER': env.str('PG_DB_USER'),
+        'PASSWORD': env.str('PG_DB_PASSWORD'),
+        'HOST': env.str('PG_DB_HOST'),
+        'PORT': env.str('PG_DB_PORT'),
+    }
 }
 
 CACHES = {
